@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Text,
   StatusBar,
+  Pressable,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
 
@@ -17,7 +18,7 @@ const FeedbackForm = () => {
   const [nameError, setNameError] = useState('');
   const [numberError, setNumberError] = useState('');
   const [emailError, setEmailError] = useState('');
-  const [sliderValue, setSliderValue] = useState(0);
+  const [sliderValue, setSliderValue] = useState(1);
   const [comment, setComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -63,7 +64,7 @@ const FeedbackForm = () => {
 
   const isFormValid = () => {
     const isNameValid = name.trim() !== '';
-    const isNumberValid = number.trim() !== '' && /^\+?\d+$/.test(number);
+    const isNumberValid = number.trim() !== '' && /^\+?[\d ]+$/.test(number);
     const isEmailValid = email.trim() !== '' && /^\S+@\S+\.\S+$/.test(email);
 
     return isNameValid && isNumberValid && isEmailValid;
@@ -85,7 +86,7 @@ const FeedbackForm = () => {
       setName('');
       setNumber('');
       setEmail('');
-      setSliderValue(0);
+      setSliderValue(1);
       setComment('');
       setIsLoading(false);
     }, 2000);
@@ -134,40 +135,42 @@ const FeedbackForm = () => {
         </View>
         <View style={styles.spacing} />
       </View>
-      <Text style={styles.text}>Share your experience in scaling</Text>
-      <View style={styles.emojisContainer}>
-        {emojis.map((item, index) => (
-          <View key={index} style={styles.emojiContainer}>
-            <Text 
-              style={[
-                styles.emoji, 
-                index === Math.floor(sliderValue - 1) ? styles.selectedEmoji : null,
-              ]}
-            >
-              {item.emoji}
-            </Text>
-            <Text 
-              style={[
-                styles.description, 
-                index === Math.floor(sliderValue - 1) ? styles.selectedDescription : null,
-              ]}
-            >
-              {item.description}
-            </Text>
-          </View>
-        ))}
+      <View>
+        <Text style={styles.text}>Share your experience in scaling</Text>
+        <View style={styles.emojisContainer}>
+          {emojis.map((item, index) => (
+            <View key={index} style={styles.emojiContainer}>
+              <Text 
+                style={[
+                  styles.emoji, 
+                  index === Math.floor(sliderValue - 1) ? styles.selectedEmoji : null,
+                ]}
+                >
+                {item.emoji}
+              </Text>
+              <Text 
+                style={[
+                  styles.description, 
+                  index === Math.floor(sliderValue - 1) ? styles.selectedDescription : null,
+                ]}
+                >
+                {item.description}
+              </Text>
+            </View>
+          ))}
+        </View>
+        <Slider
+          style={styles.slider}
+          minimumValue={1}
+          maximumValue={5}
+          step={1}
+          value={sliderValue}
+          onValueChange={handlesliderChange}
+          minimumTrackTintColor='#105955'
+          maximumTrackTintColor='#A5E0DD'
+          thumbTintColor='#105955'
+          />
       </View>
-      <Slider
-        style={styles.slider}
-        minimumValue={1}
-        maximumValue={5}
-        step={1}
-        value={sliderValue}
-        onValueChange={handlesliderChange}
-        minimumTrackTintColor='#105955'
-        maximumTrackTintColor='#A5E0DD'
-        thumbTintColor='#105955'
-        />
       <TextInput
         style={styles.commentInput}
         placeholder="Add your comments..."
@@ -175,14 +178,15 @@ const FeedbackForm = () => {
         onChangeText={setComment}
         textAlignVertical='top'
         multiline
-        />
-      <Button 
-        title='SUBMIT'
+      />
+      <Pressable 
         style={styles.button}
         onPress={handleSubmit}
         disabled={!isFormValid() || isLoading}
-        color={isFormValid() ? '#105955' : '#20B2AA'}
-      />
+        backgroundColor={isFormValid() ? '#105955' : '#20B2AA'}
+      >
+        <Text style={styles.textButton}>SUBMIT</Text>
+      </Pressable>
 
       {isLoading && (
         <View style={styles.loadingContainer}>
@@ -215,7 +219,7 @@ const styles = StyleSheet.create({
   text: {
     color: '#2071B2',
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 16,
   },
 
   spacing: {
@@ -232,8 +236,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'gray',
     borderRadius: 7,
-    marginTop: 5,
-    //marginBottom: 10,
+    //marginTop: 5,
+    marginBottom: 15,
     paddingHorizontal: 10,
   },
 
@@ -251,27 +255,23 @@ const styles = StyleSheet.create({
 
   errorText: {
     color: 'red',
-    marginBottom: 10,
-  },
-
-  label: {
-    fontSize: 16,
-    marginBottom: 5,
+    marginBottom: 15,
+    marginTop: -17,
   },
 
   emojisContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
-    marginBottom: 16,
+    justifyContent: 'space-between',
+    marginTop: 10,
+    marginBottom: 10,
   },
 
   emojiContainer: {
     alignItems: 'center',
-    paddingRight: 5,
   },
 
   emoji: {
-    fontSize: 34,
+    fontSize: 35,
     marginBottom: 8,
     opacity: 0.2,
   },
@@ -294,7 +294,8 @@ const styles = StyleSheet.create({
 
   slider: {
     width: '100%',
-    height: 40,
+    height: 20,
+    marginBottom: 15,
   },
 
   commentInput: {
@@ -304,14 +305,23 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderRadius: 10,
     paddingHorizontal: 10,
-    marginBottom: 10,
+    marginBottom: 20,
     paddingTop: 5,
+    fontSize: 16,
   },
 
   button: {
-    flex: 1,
-    borderRadius: 5,
-    color: '#20B2AA',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#20B2AA',
+    borderRadius: 7,
+    height: 50,
+  },
+
+  textButton: {
+    fontSize: 16,
+    letterSpacing: 0.5,
+    color: 'white',
   },
 
   loadingContainer: {
