@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import {
   View,
   TextInput,
-  Button,
   StyleSheet,
   ActivityIndicator,
   Text,
@@ -10,6 +9,7 @@ import {
   Pressable,
 } from 'react-native';
 import Slider from '@react-native-community/slider';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 const FeedbackForm = () => {
   const [name, setName] = useState('');
@@ -22,6 +22,7 @@ const FeedbackForm = () => {
   const [comment, setComment] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Validates name
   const validateName = () => {
     if (name.trim() === '') {
       setNameError('Name is required');
@@ -30,16 +31,18 @@ const FeedbackForm = () => {
     }
   };
 
+  // Validates number
   const validateNumber = () => {
     if (number.trim() === '') {
       setNumberError('Number is required');
-    } else if (!/^\+?\d+$/.test(number)) {
+    } else if (!/^\+?[\d\s]+$/.test(number)) {
       setNumberError('Invalid number');
     } else {
       setNumberError('');
     }
   };
 
+  // Validates email
   const validateEmail = () => {
     if (email.trim() === '') {
       setEmailError('Email is required');
@@ -62,13 +65,11 @@ const FeedbackForm = () => {
     setSliderValue(value);
   };
 
-  const isFormValid = () => {
-    const isNameValid = name.trim() !== '';
-    const isNumberValid = number.trim() !== '' && /^\+?[\d ]+$/.test(number);
-    const isEmailValid = email.trim() !== '' && /^\S+@\S+\.\S+$/.test(email);
-
-    return isNameValid && isNumberValid && isEmailValid;
-  };
+  // Checks all input fields
+  const isFormValid = 
+    name.trim() !== '' && 
+    number.trim() !== '' && /^\+?[\d ]+$/.test(number) 
+    && email.trim() !== '' && /^\S+@\S+\.\S+$/.test(email);
 
   const handleSubmit = () => {
     setIsLoading(true);
@@ -94,105 +95,106 @@ const FeedbackForm = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.rowContainer}>
-        <View style={styles.column}>
-          <Text style={styles.text}>Name</Text>
-          <TextInput
-            style={[styles.input, name !== '' && styles.filledInput, nameError && styles.inputError]}
-            placeholder="Name"
-            value={name}
-            onChangeText={setName}
-            onBlur={validateName}
-          />
-          {nameError ? <Text style={styles.errorText}>{nameError}</Text> : null}
-        </View>
-        <View style={styles.spacing} />
-        <View style={styles.column}>
-          <Text style={styles.text}>Contact Number</Text>
-          <TextInput
-            style={[styles.input, number !== '' && styles.filledInput, numberError && styles.inputError]}
-            placeholder="+91 00000 00000"
-            value={number}
-            onChangeText={setNumber}
-            keyboardType="phone-pad"
-            onBlur={validateNumber}
-          />
-          {numberError ? <Text style={styles.errorText}>{numberError}</Text> : null}
-        </View>
-      </View>
-      <View style={styles.rowContainer}>
-        <View style={[styles.column, styles.halfWidth]}>
-          <Text style={styles.text}>Email Address</Text>
-          <TextInput
-            style={[styles.input, email !== '' && styles.filledInput, emailError && styles.inputError]}
-            placeholder="xyz123@gmail.com"
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            onBlur={validateEmail}
+      <KeyboardAwareScrollView keyboardShouldPersistTaps='always'>
+        <View style={styles.rowContainer}>
+          <View style={styles.column}>
+            <Text style={styles.text}>Name</Text>
+            <TextInput
+              style={[styles.input, name !== '' && styles.filledInput, nameError && styles.inputError]}
+              placeholder="Name"
+              value={name}
+              onChangeText={setName}
+              onSelectionChange={validateName}
             />
-          {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
+            {nameError && <Text style={styles.errorText}>{nameError}</Text>}
+          </View>
+          <View style={styles.spacing} />
+          <View style={styles.column}>
+            <Text style={styles.text}>Contact Number</Text>
+            <TextInput
+              style={[styles.input, number !== '' && styles.filledInput, numberError && styles.inputError]}
+              placeholder="+91 00000 00000"
+              value={number}
+              onChangeText={setNumber}
+              keyboardType="phone-pad"
+              onSelectionChange={validateNumber}
+            />
+            {numberError && <Text style={styles.errorText}>{numberError}</Text>}
+          </View>
         </View>
-        <View style={styles.spacing} />
-      </View>
-      <View>
-        <Text style={styles.text}>Share your experience in scaling</Text>
-        <View style={styles.emojisContainer}>
-          {emojis.map((item, index) => (
-            <View key={index} style={styles.emojiContainer}>
-              <Text 
-                style={[
-                  styles.emoji, 
-                  index === Math.floor(sliderValue - 1) ? styles.selectedEmoji : null,
-                ]}
-                >
-                {item.emoji}
-              </Text>
-              <Text 
-                style={[
-                  styles.description, 
-                  index === Math.floor(sliderValue - 1) ? styles.selectedDescription : null,
-                ]}
-                >
-                {item.description}
-              </Text>
-            </View>
-          ))}
+        <View style={styles.rowContainer}>
+          <View style={[styles.column, styles.halfWidth]}>
+            <Text style={styles.text}>Email Address</Text>
+            <TextInput
+              style={[styles.input, email !== '' && styles.filledInput, emailError && styles.inputError]}
+              placeholder="xyz123@gmail.com"
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              onSelectionChange={validateEmail}
+              />
+            {emailError && <Text style={styles.errorText}>{emailError}</Text>}
+          </View>
+          <View style={styles.spacing} />
         </View>
-        <Slider
-          style={styles.slider}
-          minimumValue={1}
-          maximumValue={5}
-          step={1}
-          value={sliderValue}
-          onValueChange={handlesliderChange}
-          minimumTrackTintColor='#105955'
-          maximumTrackTintColor='#A5E0DD'
-          thumbTintColor='#105955'
-          />
-      </View>
-      <TextInput
-        style={styles.commentInput}
-        placeholder="Add your comments..."
-        value={comment}
-        onChangeText={setComment}
-        textAlignVertical='top'
-        multiline
-      />
-      <Pressable 
-        style={styles.button}
-        onPress={handleSubmit}
-        disabled={!isFormValid() || isLoading}
-        backgroundColor={isFormValid() ? '#105955' : '#20B2AA'}
-      >
-        <Text style={styles.textButton}>SUBMIT</Text>
-      </Pressable>
+        <View>
+          <Text style={styles.text}>Share your experience in scaling</Text>
+          <View style={styles.emojisContainer}>
+            {emojis.map((item, index) => (
+              <View key={item.description} style={styles.emojiContainer}>
+                <Text 
+                  style={[
+                    styles.emoji, 
+                    index === Math.round(sliderValue - 1) && styles.selectedEmoji,
+                  ]}
+                  >
+                  {item.emoji}
+                </Text>
+                <Text 
+                  style={[
+                    styles.description, 
+                    index === Math.round(sliderValue - 1) && styles.selectedDescription,
+                  ]}
+                  >
+                  {item.description}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <Slider
+            style={styles.slider}
+            minimumValue={1}
+            maximumValue={5}
+            step={0.1}
+            value={sliderValue}
+            onValueChange={handlesliderChange}
+            minimumTrackTintColor='#105955'
+            maximumTrackTintColor='#A5E0DD'
+            thumbTintColor='#105955'
+            />
+        </View>
+        <TextInput
+          style={styles.commentInput}
+          placeholder="Add your comments..."
+          value={comment}
+          onChangeText={setComment}
+          textAlignVertical='top'
+          multiline
+        />
+        <Pressable 
+          style={[styles.button, { backgroundColor: isFormValid ? '#105955' : '#20B2AA' }]}
+          onPress={handleSubmit}
+          disabled={!isFormValid || isLoading}
+        >
+          <Text style={styles.textButton}>SUBMIT</Text>
+        </Pressable>
+      </KeyboardAwareScrollView>
 
       {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size='large' color='blue' />
-        </View>
-      )}
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size='large' color='blue' />
+          </View>
+        )}
 
     </View>
   );
@@ -202,14 +204,13 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    marginTop: StatusBar.currentHeight,
-    flexDirection: 'column',
-    justifyContent: 'space-around',
+    marginTop: StatusBar.currentHeight + 30,
   },
   
   rowContainer: {
     flexDirection: 'row',
     width: '100%',
+    marginBottom: 25,
   },
 
   column: {
@@ -220,6 +221,8 @@ const styles = StyleSheet.create({
     color: '#2071B2',
     fontWeight: 'bold',
     fontSize: 16,
+    marginBottom: 5,
+    marginTop: 20,
   },
 
   spacing: {
@@ -236,8 +239,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'gray',
     borderRadius: 7,
-    //marginTop: 5,
-    marginBottom: 15,
+    marginBottom: 20,
     paddingHorizontal: 10,
   },
 
@@ -251,22 +253,22 @@ const styles = StyleSheet.create({
   inputError: {
     borderColor: 'red',
     borderWidth: 1,
+    marginBottom: 2,
   },
 
   errorText: {
     color: 'red',
-    marginBottom: 15,
-    marginTop: -17,
+    fontSize: 14,
   },
 
   emojisContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
+    marginTop: 20,
     marginBottom: 10,
   },
 
   emojiContainer: {
+    flex: 1,
     alignItems: 'center',
   },
 
@@ -281,7 +283,7 @@ const styles = StyleSheet.create({
   },
 
   description: {
-    fontSize: 13,
+    fontSize: 15,
     color: '#A5E0DD',
     maxWidth: '90%',
     textAlign: 'center',
@@ -295,7 +297,8 @@ const styles = StyleSheet.create({
   slider: {
     width: '100%',
     height: 20,
-    marginBottom: 15,
+    marginTop: 10,
+    marginBottom: 40,
   },
 
   commentInput: {
@@ -305,7 +308,7 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderRadius: 10,
     paddingHorizontal: 10,
-    marginBottom: 20,
+    marginBottom: 50,
     paddingTop: 5,
     fontSize: 16,
   },
@@ -313,7 +316,6 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#20B2AA',
     borderRadius: 7,
     height: 50,
   },
@@ -325,7 +327,11 @@ const styles = StyleSheet.create({
   },
 
   loadingContainer: {
-    ...StyleSheet.absoluteFill,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
