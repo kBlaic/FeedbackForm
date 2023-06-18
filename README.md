@@ -9,6 +9,12 @@ npm install @react-native-community/slider --save
 npm i react-native-keyboard-aware-scroll-view --save
 ```
 
+If you don't have expo, run the following command:
+
+```sh
+npm install expo
+```
+
 And then you can start a development server:
 
 ```sh
